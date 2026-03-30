@@ -368,25 +368,19 @@ export class AddTaskBarComponent implements AfterViewInit, OnInit, OnDestroy {
       this.tags$,
       this.projects$,
       this.defaultProject$,
-      this.defaultDateAndTime$,
     ])
       .pipe(
-        switchMap(
-          ([title, config, allTags, allProjects, defaultProject, defaultDateInfo]) => {
-            const { date, time } = defaultDateInfo;
-            return from(
-              this._parserService.parseAndUpdateText(
-                title || '',
-                config,
-                allProjects,
-                allTags,
-                defaultProject!,
-                date,
-                time,
-              ),
-            );
-          },
-        ),
+        switchMap(([title, config, allTags, allProjects, defaultProject]) => {
+          return from(
+            this._parserService.parseAndUpdateText(
+              title || '',
+              config,
+              allProjects,
+              allTags,
+              defaultProject!,
+            ),
+          );
+        }),
         takeUntilDestroyed(this._destroyRef),
       )
       .subscribe();

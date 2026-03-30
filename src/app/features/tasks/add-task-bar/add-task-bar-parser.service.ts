@@ -42,8 +42,6 @@ export class AddTaskBarParserService {
     allProjects: Project[],
     allTags: Tag[],
     defaultProject: Project,
-    defaultDate?: string,
-    defaultTime?: string,
   ): Promise<void> {
     const parseRunId = ++this._parseRunId;
 
@@ -83,9 +81,9 @@ export class AddTaskBarParserService {
         newTagTitles: [],
         timeSpentOnDay: null,
         timeEstimate: null,
-        // Preserve current date/time if user has selected them, otherwise use defaults
-        dueDate: currentState.date || (defaultDate ? defaultDate : null),
-        dueTime: currentState.time || defaultTime || null,
+        // Preserve current date/time
+        dueDate: currentState.date || null,
+        dueTime: currentState.time || null,
         attachments: [],
       };
     } else {
@@ -109,9 +107,10 @@ export class AddTaskBarParserService {
             dueTime = timeStr;
           }
         }
-      } else if (defaultDate) {
-        dueDate = defaultDate;
-        dueTime = defaultTime || null;
+      } else {
+        // Preserve current date and time even when parsed non date values
+        dueDate = currentState.date || null;
+        dueTime = currentState.time || null;
       }
 
       currentResult = {

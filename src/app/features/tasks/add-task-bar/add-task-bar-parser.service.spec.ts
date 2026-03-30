@@ -119,44 +119,6 @@ describe('AddTaskBarParserService', () => {
     });
 
     describe('Date Parsing', () => {
-      it('should handle default date when no date syntax present and no current state', async () => {
-        const defaultDate = '2024-01-15';
-        const defaultTime = '09:00';
-
-        // Mock state to return no current date/time
-        const mockState = {
-          projectId: mockDefaultProject.id,
-          tagIds: [],
-          tagIdsFromTxt: [],
-          newTagTitles: [],
-          date: null,
-          time: null,
-          spent: null,
-          estimate: null,
-          cleanText: null,
-          remindOption: null,
-          attachments: [],
-          repeatQuickSetting: null,
-        };
-        mockStateService.state.and.returnValue(mockState);
-
-        await service.parseAndUpdateText(
-          'Simple task',
-          mockConfig,
-          mockProjects,
-          mockTags,
-          mockDefaultProject,
-          defaultDate,
-          defaultTime,
-        );
-
-        expect(mockStateService.updateDate).toHaveBeenCalled();
-        const [date, time] = mockStateService.updateDate.calls.mostRecent().args;
-        expect(typeof date).toBe('string');
-        expect(date).toBe(defaultDate);
-        expect(time).toBe(defaultTime);
-      });
-
       it('should preserve current date/time when no syntax present', async () => {
         const currentDate = '2024-02-20';
         const currentTime = '14:30';
@@ -192,9 +154,8 @@ describe('AddTaskBarParserService', () => {
         expect(time).toBe(currentTime);
       });
 
-      it('should preserve current date but use default time when no current time', async () => {
+      it('should preserve current date and null time', async () => {
         const currentDate = '2024-02-20';
-        const defaultTime = '09:00';
 
         // Mock state with date but no time
         const mockState = {
@@ -219,17 +180,15 @@ describe('AddTaskBarParserService', () => {
           mockProjects,
           mockTags,
           mockDefaultProject,
-          undefined, // no default date
-          defaultTime,
         );
 
         expect(mockStateService.updateDate).toHaveBeenCalled();
         const [date, time] = mockStateService.updateDate.calls.mostRecent().args;
         expect(date).toBe(currentDate);
-        expect(time).toBe(defaultTime);
+        expect(time).toBeNull();
       });
 
-      it('should handle no date or default date', async () => {
+      it('should handle no date', async () => {
         await service.parseAndUpdateText(
           'Simple task',
           mockConfig,
@@ -257,26 +216,6 @@ describe('AddTaskBarParserService', () => {
 
         expect(mockStateService.updateDate).toHaveBeenCalled();
         expect(mockStateService.updateCleanText).toHaveBeenCalled();
-      });
-
-      it('should handle default date and time when no syntax is found', async () => {
-        const defaultDate = '2024-01-15';
-        const defaultTime = '09:00';
-
-        await service.parseAndUpdateText(
-          'Plain text task',
-          mockConfig,
-          mockProjects,
-          mockTags,
-          mockDefaultProject,
-          defaultDate,
-          defaultTime,
-        );
-
-        expect(mockStateService.updateDate).toHaveBeenCalled();
-        const [date, time] = mockStateService.updateDate.calls.mostRecent().args;
-        expect(typeof date).toBe('string');
-        expect(time).toBe(defaultTime);
       });
     });
 
@@ -623,8 +562,6 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         mockTags,
         mockDefaultProject,
-        dateStr,
-        timeStr,
       );
 
       // Should preserve the date string as-is
@@ -641,8 +578,8 @@ describe('AddTaskBarParserService', () => {
         tagIds: [],
         tagIdsFromTxt: [],
         newTagTitles: [],
-        date: null,
-        time: null,
+        date: springDateStr,
+        time: springTimeStr,
         spent: null,
         estimate: null,
         cleanText: null,
@@ -658,8 +595,6 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         mockTags,
         mockDefaultProject,
-        springDateStr,
-        springTimeStr,
       );
 
       expect(mockStateService.updateDate).toHaveBeenCalledWith(
@@ -678,8 +613,8 @@ describe('AddTaskBarParserService', () => {
         tagIds: [],
         tagIdsFromTxt: [],
         newTagTitles: [],
-        date: null,
-        time: null,
+        date: newYearDateStr,
+        time: newYearTimeStr,
         spent: null,
         estimate: null,
         cleanText: null,
@@ -695,8 +630,6 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         mockTags,
         mockDefaultProject,
-        newYearDateStr,
-        newYearTimeStr,
       );
 
       expect(mockStateService.updateDate).toHaveBeenCalledWith(
@@ -713,7 +646,7 @@ describe('AddTaskBarParserService', () => {
         tagIds: [],
         tagIdsFromTxt: [],
         newTagTitles: [],
-        date: null,
+        date: dateStr,
         time: null,
         spent: null,
         estimate: null,
@@ -730,8 +663,6 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         mockTags,
         mockDefaultProject,
-        dateStr,
-        undefined,
       );
 
       // Date should be passed through without modification
@@ -747,8 +678,8 @@ describe('AddTaskBarParserService', () => {
         tagIds: [],
         tagIdsFromTxt: [],
         newTagTitles: [],
-        date: null,
-        time: null,
+        date: dateStr,
+        time: midnightTime,
         spent: null,
         estimate: null,
         cleanText: null,
@@ -764,8 +695,6 @@ describe('AddTaskBarParserService', () => {
         mockProjects,
         mockTags,
         mockDefaultProject,
-        dateStr,
-        midnightTime,
       );
 
       expect(mockStateService.updateDate).toHaveBeenCalledWith(dateStr, midnightTime);
